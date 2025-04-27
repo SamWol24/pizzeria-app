@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('suppliers', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('contact_info')->nullable();
+            $table->string('name');  // Nombre del proveedor
+            $table->string('contact_email')->nullable(); // Correo de contacto
+            $table->string('phone_number')->nullable(); // Teléfono de contacto
             $table->timestamps();
         });
     }

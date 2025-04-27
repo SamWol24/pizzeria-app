@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('position');
             $table->decimal('salary', 10, 2);
+            $table->foreignId('branch_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->unique()->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

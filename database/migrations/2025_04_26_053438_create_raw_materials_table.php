@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('raw_materials', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->decimal('cost', 8, 2);
-            $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
+            $table->string('name'); // Nombre de la materia prima
+            $table->decimal('cost', 10, 2); // Costo de la materia prima (ajustado precisión)
+            $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade'); // Relación con proveedores
             $table->timestamps();
         });
     }
