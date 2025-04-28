@@ -28,7 +28,15 @@ class PizzaRawMaterialController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Asignar materia prima a una pizza
+        $validated = $request->validate([
+            'pizza_id' => 'required|exists:pizzas,id',
+            'raw_material_id' => 'required|exists:raw_materials,id',
+            'quantity' => 'required|numeric',
+        ]);
+
+        $pizzaRawMaterial = PizzaRawMaterial::create($validated);
+        return response()->json($pizzaRawMaterial, 201);
     }
 
     /**
@@ -50,16 +58,27 @@ class PizzaRawMaterialController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, PizzaRawMaterial $pizzaRawMaterial)
+    public function update(Request $request, $id)
     {
-        //
+        // Actualizar cantidad de materia prima de una pizza
+        $pizzaRawMaterial = PizzaRawMaterial::findOrFail($id);
+
+        $validated = $request->validate([
+            'quantity' => 'required|numeric',
+        ]);
+
+        $pizzaRawMaterial->update($validated);
+        return response()->json($pizzaRawMaterial);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PizzaRawMaterial $pizzaRawMaterial)
+    public function destroy($id)
     {
-        //
+        // Eliminar una materia prima de una pizza
+        $pizzaRawMaterial = PizzaRawMaterial::findOrFail($id);
+        $pizzaRawMaterial->delete();
+        return response()->json(['message' => 'Pizza raw material deleted successfully']);
     }
 }

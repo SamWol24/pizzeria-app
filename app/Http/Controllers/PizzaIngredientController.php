@@ -28,7 +28,14 @@ class PizzaIngredientController extends Controller
      */
     public function store(Request $request)
     {
-        //
+         // Asignar ingredientes a una pizza
+         $validated = $request->validate([
+            'pizza_id' => 'required|exists:pizzas,id',
+            'ingredient_id' => 'required|exists:ingredients,id',
+        ]);
+
+        $pizzaIngredient = PizzaIngredient::create($validated);
+        return response()->json($pizzaIngredient, 201);
     }
 
     /**
@@ -58,8 +65,11 @@ class PizzaIngredientController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PizzaIngredient $pizzaIngredient)
+    public function destroy($id)
     {
-        //
+        // Eliminar un ingrediente de una pizza
+        $pizzaIngredient = PizzaIngredient::findOrFail($id);
+        $pizzaIngredient->delete();
+        return response()->json(['message' => 'Pizza ingredient deleted successfully']);
     }
 }

@@ -12,7 +12,9 @@ class IngredientController extends Controller
      */
     public function index()
     {
-        //
+         // Obtener todos los ingredientes
+         $ingredients = Ingredient::all();
+         return response()->json($ingredients);
     }
 
     /**
@@ -28,15 +30,24 @@ class IngredientController extends Controller
      */
     public function store(Request $request)
     {
-        //
+         // Crear un nuevo ingrediente
+         $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric',
+        ]);
+
+        $ingredient = Ingredient::create($validated);
+        return response()->json($ingredient, 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Ingredient $ingredient)
+    public function show($id)
     {
-        //
+        // Obtener un ingrediente específico
+        $ingredient = Ingredient::findOrFail($id);
+        return response()->json($ingredient);
     }
 
     /**
@@ -50,16 +61,28 @@ class IngredientController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Ingredient $ingredient)
+    public function update(Request $request, $id)
     {
-        //
+        // Actualizar un ingrediente
+        $ingredient = Ingredient::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric',
+        ]);
+
+        $ingredient->update($validated);
+        return response()->json($ingredient);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Ingredient $ingredient)
+    public function destroy($id)
     {
-        //
+        // Eliminar un ingrediente
+        $ingredient = Ingredient::findOrFail($id);
+        $ingredient->delete();
+        return response()->json(['message' => 'Ingredient deleted successfully']);
     }
 }

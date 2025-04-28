@@ -28,7 +28,18 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Crear un nuevo empleado
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:employees,email',
+            'position' => 'required|string|max:255',
+            'salary' => 'required|numeric',
+            'branch_id' => 'required|exists:branches,id',
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $employee = Employee::create($validated);
+        return response()->json($employee, 201);
     }
 
     /**
@@ -36,7 +47,8 @@ class EmployeeController extends Controller
      */
     public function show(Employee $employee)
     {
-        //
+        // Mostrar un empleado específico
+        return response()->json($employee->load(['branch', 'user']));
     }
 
     /**
@@ -52,7 +64,18 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, Employee $employee)
     {
-        //
+        // Actualizar un empleado
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:employees,email,' . $employee->id,
+            'position' => 'required|string|max:255',
+            'salary' => 'required|numeric',
+            'branch_id' => 'required|exists:branches,id',
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $employee->update($validated);
+        return response()->json($employee);
     }
 
     /**
@@ -60,6 +83,8 @@ class EmployeeController extends Controller
      */
     public function destroy(Employee $employee)
     {
-        //
+         // Eliminar un empleado
+         $employee->delete();
+         return response()->json(['message' => 'Employee deleted successfully']);
     }
 }

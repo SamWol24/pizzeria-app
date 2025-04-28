@@ -12,7 +12,9 @@ class OrderController extends Controller
      */
     public function index()
     {
-        //
+        // Obtener todos los pedidos
+        $orders = Order::with(['user', 'orderPizzas.pizzaSize'])->get();
+        return response()->json($orders);
     }
 
     /**
@@ -28,7 +30,16 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        //
+         // Crear un nuevo pedido
+         $validated = $request->validate([
+            'client_id' => 'required|exists:clients,id',
+            'employee_id' => 'nullable|exists:employees,id',
+            'total' => 'required|numeric',
+            'status' => 'required|string|max:255',
+        ]);
+
+        $order = Order::create($validated);
+        return response()->json($order, 201);
     }
 
     /**
@@ -36,7 +47,8 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        //
+        // Mostrar un pedido específico, incluyendo relaciones de cliente y empleado
+        return response()->json($order->load(['client', 'employee']));
     }
 
     /**
@@ -44,7 +56,8 @@ class OrderController extends Controller
      */
     public function edit(Order $order)
     {
-        //
+        // Mostrar un pedido específico para editar
+        return response()->json($order->load(['client', 'employee']));
     }
 
     /**
@@ -52,7 +65,14 @@ class OrderController extends Controller
      */
     public function update(Request $request, Order $order)
     {
-        //
+        // Actualizar el pedido con nuevos datos
+        $validated = $request->validate([
+            'total' => 'required|numeric',
+            'status' => 'required|string|max:255',
+        ]);
+
+        $order->update($validated);
+        return response()->json($order);
     }
 
     /**
@@ -60,6 +80,8 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
-        //
+        // Eliminar un pedido
+        $order->delete();
+        return response()->json(['message' => 'Order deleted successfully']);
     }
 }

@@ -12,19 +12,16 @@ class ClientController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-
+     
+     // Añadí el middleware para asegurarse de que el usuario esté autenticado
      public function __construct()
      {
          $this->middleware('auth');
      }     
     public function index()
     {
-        // recuperamos los registros de los clientes
-        $clients = Client::all();
-
-        // 20 clientes por página
-        $clients = Client::paginate(20);  
-
+        // Recuperar todos los clientes, con paginación
+        $clients = Client::paginate(20); 
 
         // se envia los datos a la vista index.blade.php
         return view('client.index', compact('clients'));
@@ -43,7 +40,15 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
-        //
+         // Crear un nuevo cliente
+         $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'address' => 'required|string|max:255',
+            'phone' => 'required|string|max:15',
+        ]);
+
+        $client = Client::create($validated);
+        return response()->json($client, 201);
     }
 
     /**
@@ -51,7 +56,9 @@ class ClientController extends Controller
      */
     public function show(string $id)
     {
-        //
+         // Mostrar un cliente específico
+         $client = Client::with('user')->findOrFail($id);
+         return response()->json($client);
     }
 
     /**

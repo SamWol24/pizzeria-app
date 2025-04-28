@@ -12,7 +12,9 @@ class OrderPizzaController extends Controller
      */
     public function index()
     {
-        //
+        // Obtener todas las pizzas en los pedidos
+        $orderPizzas = OrderPizza::all();
+        return response()->json($orderPizzas);
     }
 
     /**
@@ -28,7 +30,15 @@ class OrderPizzaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Asignar una pizza a un pedido
+        $validated = $request->validate([
+            'order_id' => 'required|exists:orders,id',
+            'pizza_size_id' => 'required|exists:pizza_sizes,id',
+            'quantity' => 'required|numeric',
+        ]);
+
+        $orderPizza = OrderPizza::create($validated);
+        return response()->json($orderPizza, 201);
     }
 
     /**
@@ -36,7 +46,8 @@ class OrderPizzaController extends Controller
      */
     public function show(OrderPizza $orderPizza)
     {
-        //
+        // Mostrar una pizza en un pedido específico
+        return response()->json($orderPizza);
     }
 
     /**
@@ -52,14 +63,25 @@ class OrderPizzaController extends Controller
      */
     public function update(Request $request, OrderPizza $orderPizza)
     {
-        //
+        // Actualizar una pizza en un pedido
+        $validated = $request->validate([
+            'order_id' => 'required|exists:orders,id',
+            'pizza_size_id' => 'required|exists:pizza_sizes,id',
+            'quantity' => 'required|numeric',
+        ]);
+
+        $orderPizza->update($validated);
+        return response()->json($orderPizza);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(OrderPizza $orderPizza)
+    public function destroy($id)
     {
-        //
+        // Eliminar una pizza de un pedido
+        $orderPizza = OrderPizza::findOrFail($id);
+        $orderPizza->delete();
+        return response()->json(['message' => 'Pizza removed from order']);
     }
 }

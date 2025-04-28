@@ -45,4 +45,20 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Relación: un usuario puede ser un cliente.
+     */
+    public function client()
+    {
+        return $this->hasOne(Client::class);
+    }
+
+    /**
+     * Relación: un usuario puede ser un empleado.
+     */
+    public function employee()
+    {
+        return $this->hasOne(Employee::class);
+    }
 }

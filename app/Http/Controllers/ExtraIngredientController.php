@@ -12,7 +12,9 @@ class ExtraIngredientController extends Controller
      */
     public function index()
     {
-        //
+        // mostrar todos los ingredientes extras disponibles
+        $extras = ExtraIngredient::all();
+        return response()->json($extras);
     }
 
     /**
@@ -28,15 +30,24 @@ class ExtraIngredientController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // crear un nuevo ingrediente extra
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric',
+        ]);
+
+        $extra = ExtraIngredient::create($validated);
+        return response()->json($extra, 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(ExtraIngredient $extraIngredient)
+    public function show($id)
     {
-        //
+        // mostrar ingrediente extra especifico
+        $extra = ExtraIngredient::findOrFail($id);
+        return response()->json($extra);
     }
 
     /**
@@ -50,16 +61,28 @@ class ExtraIngredientController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ExtraIngredient $extraIngredient)
+    public function update(Request $request, $id)
     {
-        //
+        // actualizar ingrediente extra existente
+        $extra = ExtraIngredient::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric',
+        ]);
+
+        $extra->update($validated);
+        return response()->json($extra);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ExtraIngredient $extraIngredient)
+    public function destroy($id)
     {
-        //
+        // eliminar un ingrediente extra
+        $extra = ExtraIngredient::findOrFail($id);
+        $extra->delete();
+        return response()->json(['message' => 'Extra ingredient deleted successfully']);
     }
 }

@@ -28,7 +28,15 @@ class OrderExtraIngredientController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // agragar ingradiente extra a una orden
+        $validated = $request->validate([
+            'order_pizza_id' => 'required|exists:order_pizzas,id',
+            'extra_ingredient_id' => 'required|exists:extra_ingredients,id',
+            'quantity' => 'required|integer|min:1',
+        ]);
+
+        $orderExtraIngredient = OrderExtraIngredient::create($validated);
+        return response()->json($orderExtraIngredient, 201);
     }
 
     /**
@@ -58,8 +66,10 @@ class OrderExtraIngredientController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(OrderExtraIngredient $orderExtraIngredient)
+    public function destroy($id)
     {
-        //
+        $orderExtraIngredient = OrderExtraIngredient::findOrFail($id);
+        $orderExtraIngredient->delete();
+        return response()->json(['message' => 'Extra ingredient removed from order pizza']);
     }
 }

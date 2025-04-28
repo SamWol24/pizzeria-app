@@ -12,7 +12,9 @@ class PurchaseController extends Controller
      */
     public function index()
     {
-        //
+        // Obtener todas las compras
+        $purchases = Purchase::with(['supplier', 'rawMaterial'])->get();
+        return response()->json($purchases);
     }
 
     /**
@@ -28,15 +30,27 @@ class PurchaseController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Crear una nueva compra
+        $validated = $request->validate([
+            'supplier_id' => 'required|exists:suppliers,id',
+            'raw_material_id' => 'required|exists:raw_materials,id',
+            'quantity' => 'required|numeric',
+            'purchase_price' => 'required|numeric',
+            'purchase_date' => 'required|date',
+        ]);
+
+        $purchase = Purchase::create($validated);
+        return response()->json($purchase, 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Purchase $purchase)
+    public function show($id)
     {
-        //
+        // Mostrar una compra específica
+        $purchase = Purchase::with(['supplier', 'rawMaterial'])->findOrFail($id);
+        return response()->json($purchase);
     }
 
     /**
@@ -50,16 +64,31 @@ class PurchaseController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Purchase $purchase)
+    public function update(Request $request, $id)
     {
-        //
+        // Actualizar una compra existente
+        $purchase = Purchase::findOrFail($id);
+
+        $validated = $request->validate([
+            'supplier_id' => 'required|exists:suppliers,id',
+            'raw_material_id' => 'required|exists:raw_materials,id',
+            'quantity' => 'required|numeric',
+            'purchase_price' => 'required|numeric',
+            'purchase_date' => 'required|date',
+        ]);
+
+        $purchase->update($validated);
+        return response()->json($purchase);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Purchase $purchase)
+    public function destroy($id)
     {
-        //
+        // Eliminar una compra
+        $purchase = Purchase::findOrFail($id);
+        $purchase->delete();
+        return response()->json(['message' => 'Purchase deleted successfully']);
     }
 }
