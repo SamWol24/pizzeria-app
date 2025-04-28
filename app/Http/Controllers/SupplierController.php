@@ -14,7 +14,8 @@ class SupplierController extends Controller
     {
         // Obtener todos los proveedores
         $suppliers = Supplier::all();
-        return response()->json($suppliers);
+        // Retornar la vista con los proveedores
+        return view('suppliers.index', compact('suppliers'));
     }
 
     /**
@@ -22,7 +23,8 @@ class SupplierController extends Controller
      */
     public function create()
     {
-        //
+        // Mostrar el formulario para crear un proveedor
+        return view('suppliers.create');
     }
 
     /**
@@ -41,8 +43,8 @@ class SupplierController extends Controller
         // Crear un nuevo proveedor
         $supplier = Supplier::create($validated);
 
-        // Retornar la respuesta con el proveedor recién creado
-        return response()->json($supplier, 201);
+        // Redirigir a la lista de proveedores con un mensaje de éxito
+        return redirect()->route('suppliers.index')->with('success', 'Proveedor creado exitosamente');
     }
 
     /**
@@ -52,15 +54,19 @@ class SupplierController extends Controller
     {
         // Mostrar un proveedor específico
         $supplier = Supplier::findOrFail($id);
-        return response()->json($supplier);
+        // Retornar la vista con el proveedor
+        return view('suppliers.show', compact('supplier'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Supplier $supplier)
+    public function edit($id)
     {
-        //
+        // Buscar el proveedor a editar
+        $supplier = Supplier::findOrFail($id);
+        // Retornar la vista para editar el proveedor
+        return view('suppliers.edit', compact('supplier'));
     }
 
     /**
@@ -82,8 +88,8 @@ class SupplierController extends Controller
         // Actualizar el proveedor con los nuevos datos
         $supplier->update($validated);
 
-        // Retornar la respuesta con el proveedor actualizado
-        return response()->json($supplier);
+        // Redirigir a la lista de proveedores con un mensaje de éxito
+        return redirect()->route('suppliers.index')->with('success', 'Proveedor actualizado exitosamente');
     }
 
     /**
@@ -95,7 +101,7 @@ class SupplierController extends Controller
         $supplier = Supplier::findOrFail($id);
         $supplier->delete();
 
-        // Retornar mensaje de éxito
-        return response()->json(['message' => 'Supplier deleted successfully']);
+        // Redirigir a la lista de proveedores con un mensaje de éxito
+        return redirect()->route('suppliers.index')->with('success', 'Proveedor eliminado exitosamente');
     }
 }

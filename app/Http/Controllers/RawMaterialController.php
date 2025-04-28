@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\RawMaterial;
@@ -11,28 +10,34 @@ class RawMaterialController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function index()
     {
-        // Obtener materia prima
+        // Obtener todas las materias primas y sus proveedores
         $materials = RawMaterial::with('supplier')->get();
-        return response()->json($materials);
+        // Retornar la vista con los materiales
+        return view('rawMaterials.index', compact('materials'));
     }
 
     /**
      * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\View\View
      */
     public function create()
     {
-        //
+        // Obtener todos los proveedores para mostrarlos en el formulario
+        $suppliers = Supplier::all();
+        // Retornar la vista para crear una nueva materia prima
+        return view('rawMaterials.create', compact('suppliers'));
     }
 
-   /**
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
@@ -44,29 +49,37 @@ class RawMaterialController extends Controller
         ]);
 
         // Crear la materia prima
-        $material = RawMaterial::create($validated);
-        return response()->json($material, 201);
+        RawMaterial::create($validated);
+        // Redirigir a la lista de materias primas con un mensaje de éxito
+        return redirect()->route('raw-materials.index')->with('success', 'Materia prima creada exitosamente.');
     }
 
-     /**
+    /**
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function show($id)
     {
-        // Mostrar una materia prima específica junto con su proveedor
+        // Obtener la materia prima junto con su proveedor
         $material = RawMaterial::with('supplier')->findOrFail($id);
-        return response()->json($material);
+        // Retornar la vista con los detalles de la materia prima
+        return view('rawMaterials.show', compact('material'));
     }
 
     /**
      * Show the form for editing the specified resource.
+     *
+     * @param  RawMaterial  $rawMaterial
+     * @return \Illuminate\View\View
      */
     public function edit(RawMaterial $rawMaterial)
     {
-        //
+        // Obtener todos los proveedores para mostrarlos en el formulario
+        $suppliers = Supplier::all();
+        // Retornar la vista para editar la materia prima
+        return view('rawMaterials.edit', compact('rawMaterial', 'suppliers'));
     }
 
     /**
@@ -74,7 +87,7 @@ class RawMaterialController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, $id)
     {
@@ -90,20 +103,22 @@ class RawMaterialController extends Controller
 
         // Actualizar los datos de la materia prima
         $material->update($validated);
-        return response()->json($material);
+        // Redirigir a la lista de materias primas con un mensaje de éxito
+        return redirect()->route('raw-materials.index')->with('success', 'Materia prima actualizada exitosamente.');
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy($id)
     {
         // Buscar y eliminar la materia prima
         $material = RawMaterial::findOrFail($id);
         $material->delete();
-        return response()->json(['message' => 'Raw material deleted successfully']);
+        // Redirigir a la lista de materias primas con un mensaje de éxito
+        return redirect()->route('raw-materials.index')->with('success', 'Materia prima eliminada exitosamente.');
     }
 }
