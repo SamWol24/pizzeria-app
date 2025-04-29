@@ -3,73 +3,66 @@
 namespace App\Http\Controllers;
 
 use App\Models\PizzaIngredient;
+use App\Models\Pizza;
+use App\Models\Ingredient;
 use Illuminate\Http\Request;
 
 class PizzaIngredientController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $pizzaIngredients = PizzaIngredient::all();
+        return view('pizza_ingredients.index', compact('pizzaIngredients'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $pizzas = Pizza::all();
+        $ingredients = Ingredient::all();
+        return view('pizza_ingredients.create', compact('pizzas', 'ingredients'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-         // Asignar ingredientes a una pizza
-         $validated = $request->validate([
+        $validated = $request->validate([
             'pizza_id' => 'required|exists:pizzas,id',
             'ingredient_id' => 'required|exists:ingredients,id',
         ]);
 
-        $pizzaIngredient = PizzaIngredient::create($validated);
-        return response()->json($pizzaIngredient, 201);
+        PizzaIngredient::create($validated);
+
+        return redirect()->route('pizza_ingredients.index')->with('success', 'Ingrediente asignado correctamente');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(PizzaIngredient $pizzaIngredient)
     {
-        //
+        return view('pizza_ingredients.show', compact('pizzaIngredient'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(PizzaIngredient $pizzaIngredient)
     {
-        //
+        $pizzas = Pizza::all();
+        $ingredients = Ingredient::all();
+        return view('pizza_ingredients.edit', compact('pizzaIngredient', 'pizzas', 'ingredients'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, PizzaIngredient $pizzaIngredient)
     {
-        //
+        $validated = $request->validate([
+            'pizza_id' => 'required|exists:pizzas,id',
+            'ingredient_id' => 'required|exists:ingredients,id',
+        ]);
+
+        $pizzaIngredient->update($validated);
+
+        return redirect()->route('pizza_ingredients.index')->with('success', 'Asignación actualizada correctamente');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
-        // Eliminar un ingrediente de una pizza
         $pizzaIngredient = PizzaIngredient::findOrFail($id);
         $pizzaIngredient->delete();
-        return response()->json(['message' => 'Pizza ingredient deleted successfully']);
+
+        return redirect()->route('pizza_ingredients.index')->with('success', 'Asignación eliminada correctamente');
     }
 }

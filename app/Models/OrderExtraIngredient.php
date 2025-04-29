@@ -9,7 +9,7 @@ class OrderExtraIngredient extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['order_id', 'extra_ingredient_id', 'quantity'];
+    protected $fillable = ['order_pizza_id', 'extra_ingredient_id', 'quantity'];
 
     // Relación con Order
     public function order()

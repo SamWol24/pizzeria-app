@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\OrderExtraIngredient;
+use App\Models\OrderPizza;
+use App\Models\ExtraIngredient;
 use Illuminate\Http\Request;
 
 class OrderExtraIngredientController extends Controller
@@ -12,7 +14,8 @@ class OrderExtraIngredientController extends Controller
      */
     public function index()
     {
-        //
+        $orderExtraIngredients = OrderExtraIngredient::with('extraIngredient')->get();
+        return view('order_extra_ingredient.index', compact('orderExtraIngredients'));
     }
 
     /**
@@ -20,7 +23,9 @@ class OrderExtraIngredientController extends Controller
      */
     public function create()
     {
-        //
+        $orderPizzas = OrderPizza::all();
+        $extraIngredients = ExtraIngredient::all();
+        return view('order_extra_ingredient.create', compact('orderPizzas', 'extraIngredients'));
     }
 
     /**
@@ -28,39 +33,44 @@ class OrderExtraIngredientController extends Controller
      */
     public function store(Request $request)
     {
-        // agragar ingradiente extra a una orden
         $validated = $request->validate([
             'order_pizza_id' => 'required|exists:order_pizzas,id',
             'extra_ingredient_id' => 'required|exists:extra_ingredients,id',
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $orderExtraIngredient = OrderExtraIngredient::create($validated);
-        return response()->json($orderExtraIngredient, 201);
-    }
+        OrderExtraIngredient::create($validated);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(OrderExtraIngredient $orderExtraIngredient)
-    {
-        //
+        return redirect()->route('order_extra_ingredient.index')->with('success', 'Ingrediente extra agregado correctamente');
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(OrderExtraIngredient $orderExtraIngredient)
+    public function edit($id)
     {
-        //
+        $orderExtraIngredient = OrderExtraIngredient::findOrFail($id);
+        $orderPizzas = OrderPizza::all();
+        $extraIngredients = ExtraIngredient::all();
+
+        return view('order_extra_ingredient.edit', compact('orderExtraIngredient', 'orderPizzas', 'extraIngredients'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, OrderExtraIngredient $orderExtraIngredient)
+    public function update(Request $request, $id)
     {
-        //
+        $validated = $request->validate([
+            'order_pizza_id' => 'required|exists:order_pizzas,id',
+            'extra_ingredient_id' => 'required|exists:extra_ingredients,id',
+            'quantity' => 'required|integer|min:1',
+        ]);
+
+        $orderExtraIngredient = OrderExtraIngredient::findOrFail($id);
+        $orderExtraIngredient->update($validated);
+
+        return redirect()->route('order_extra_ingredient.index')->with('success', 'Ingrediente extra actualizado correctamente');
     }
 
     /**
@@ -70,6 +80,7 @@ class OrderExtraIngredientController extends Controller
     {
         $orderExtraIngredient = OrderExtraIngredient::findOrFail($id);
         $orderExtraIngredient->delete();
-        return response()->json(['message' => 'Extra ingredient removed from order pizza']);
+
+        return redirect()->route('order_extra_ingredient.index')->with('success', 'Ingrediente extra eliminado correctamente');
     }
 }

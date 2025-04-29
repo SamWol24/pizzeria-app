@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\OrderPizza;
+use App\Models\Order;
+use App\Models\PizzaSize;
 use Illuminate\Http\Request;
 
 class OrderPizzaController extends Controller
@@ -12,9 +14,8 @@ class OrderPizzaController extends Controller
      */
     public function index()
     {
-        // Obtener todas las pizzas en los pedidos
-        $orderPizzas = OrderPizza::all();
-        return response()->json($orderPizzas);
+        $orderPizzas = OrderPizza::with(['order', 'pizzaSize'])->get();
+        return view('order_pizzas.index', compact('orderPizzas'));
     }
 
     /**
@@ -22,7 +23,9 @@ class OrderPizzaController extends Controller
      */
     public function create()
     {
-        //
+        $orders = Order::all();
+        $pizzaSizes = PizzaSize::all();
+        return view('order_pizzas.create', compact('orders', 'pizzaSizes'));
     }
 
     /**
@@ -30,15 +33,15 @@ class OrderPizzaController extends Controller
      */
     public function store(Request $request)
     {
-        // Asignar una pizza a un pedido
         $validated = $request->validate([
             'order_id' => 'required|exists:orders,id',
             'pizza_size_id' => 'required|exists:pizza_sizes,id',
-            'quantity' => 'required|numeric',
+            'quantity' => 'required|numeric|min:1',
         ]);
 
-        $orderPizza = OrderPizza::create($validated);
-        return response()->json($orderPizza, 201);
+        OrderPizza::create($validated);
+
+        return redirect()->route('order_pizzas.index')->with('success', 'Pizza agregada al pedido correctamente.');
     }
 
     /**
@@ -46,8 +49,7 @@ class OrderPizzaController extends Controller
      */
     public function show(OrderPizza $orderPizza)
     {
-        // Mostrar una pizza en un pedido específico
-        return response()->json($orderPizza);
+        return view('order_pizzas.show', compact('orderPizza'));
     }
 
     /**
@@ -55,7 +57,9 @@ class OrderPizzaController extends Controller
      */
     public function edit(OrderPizza $orderPizza)
     {
-        //
+        $orders = Order::all();
+        $pizzaSizes = PizzaSize::all();
+        return view('order_pizzas.edit', compact('orderPizza', 'orders', 'pizzaSizes'));
     }
 
     /**
@@ -63,25 +67,23 @@ class OrderPizzaController extends Controller
      */
     public function update(Request $request, OrderPizza $orderPizza)
     {
-        // Actualizar una pizza en un pedido
         $validated = $request->validate([
             'order_id' => 'required|exists:orders,id',
             'pizza_size_id' => 'required|exists:pizza_sizes,id',
-            'quantity' => 'required|numeric',
+            'quantity' => 'required|numeric|min:1',
         ]);
 
         $orderPizza->update($validated);
-        return response()->json($orderPizza);
+
+        return redirect()->route('order_pizzas.index')->with('success', 'Pizza en pedido actualizada correctamente.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(OrderPizza $orderPizza)
     {
-        // Eliminar una pizza de un pedido
-        $orderPizza = OrderPizza::findOrFail($id);
         $orderPizza->delete();
-        return response()->json(['message' => 'Pizza removed from order']);
+        return redirect()->route('order_pizzas.index')->with('success', 'Pizza eliminada del pedido.');
     }
 }

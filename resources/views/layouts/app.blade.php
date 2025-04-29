@@ -25,8 +25,12 @@
                         <a class="nav-link" href="/clients">Clientes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/raw-materials">Materias Primas</a>
+                      <a class="nav-link" href="/pizza_raw_materials">Asignar MP a Pizzas</a>
                     </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="/pizza_ingredients">Asignar Ingredientes a Pizzas</a>
+                    </li>
+
                 </ul>
             </div>
         </nav>

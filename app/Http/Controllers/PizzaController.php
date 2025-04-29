@@ -26,7 +26,10 @@ class PizzaController extends Controller
      */
     public function create()
     {
-        //
+        return view('pizzas.create', [
+            'sizes' => PizzaSize::all(),
+            'ingredients' => Ingredient::all()
+        ]);
     }
 
     /**
@@ -74,7 +77,11 @@ class PizzaController extends Controller
      */
     public function edit(Pizza $pizza)
     {
-        //
+        return view('pizzas.edit', [
+            'pizza' => $pizza,
+            'sizes' => PizzaSize::all(),
+            'ingredients' => Ingredient::all()
+        ]);
     }
 
    /**

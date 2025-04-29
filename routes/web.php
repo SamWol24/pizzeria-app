@@ -14,6 +14,7 @@ use App\Http\Controllers\PizzaSizeController;
 use App\Http\Controllers\OrderExtraIngredientController;
 use App\Http\Controllers\ExtraIngredientController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\PizzaRawMaterialController;
 
 // Ruta de la página principal
 Route::get('/', function () {
@@ -50,6 +51,8 @@ Route::resource('branches', BranchController::class);
 // Rutas para proveedores (Suppliers)
 Route::resource('suppliers', SupplierController::class);
 
+Route::resource('pizza_ingredients', App\Http\Controllers\PizzaIngredientController::class);
+
 // Rutas para ingredientes (Ingredients)
 Route::resource('ingredients', IngredientController::class);
 
@@ -57,12 +60,14 @@ Route::resource('ingredients', IngredientController::class);
 Route::resource('pizza-sizes', PizzaSizeController::class);
 
 // Rutas para Extras en un Pedido (OrderExtraIngredient)
-Route::resource('order-extra-ingredients', OrderExtraIngredientController::class);
+Route::resource('order_extra_ingredient', OrderExtraIngredientController::class);
 
 // Rutas para Ingredientes Extras (ExtraIngredient)
 Route::resource('extra-ingredients', ExtraIngredientController::class);
 
 Route::resource('purchases', PurchaseController::class);
+
+Route::resource('pizza_raw_materials', PizzaRawMaterialController::class);
 
 // Rutas para manejar las pizzas en pedidos (OrderPizzas)
 Route::prefix('order-pizzas')->group(function () {

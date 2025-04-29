@@ -3,82 +3,87 @@
 namespace App\Http\Controllers;
 
 use App\Models\PizzaRawMaterial;
+use App\Models\Pizza;
+use App\Models\RawMaterial;
 use Illuminate\Http\Request;
 
 class PizzaRawMaterialController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Mostrar lista de pizza_raw_materials.
      */
     public function index()
     {
-        //
+        $pizzaRawMaterials = PizzaRawMaterial::with('pizza', 'rawMaterial')->get();
+        return view('pizza_raw_materials.index', compact('pizzaRawMaterials'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Mostrar formulario de creación.
      */
     public function create()
     {
-        //
+        $pizzas = Pizza::all();
+        $rawMaterials = RawMaterial::all();
+        return view('pizza_raw_materials.create', compact('pizzas', 'rawMaterials'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Guardar nuevo recurso en base de datos.
      */
     public function store(Request $request)
     {
-        // Asignar materia prima a una pizza
         $validated = $request->validate([
             'pizza_id' => 'required|exists:pizzas,id',
             'raw_material_id' => 'required|exists:raw_materials,id',
             'quantity' => 'required|numeric',
         ]);
 
-        $pizzaRawMaterial = PizzaRawMaterial::create($validated);
-        return response()->json($pizzaRawMaterial, 201);
+        PizzaRawMaterial::create($validated);
+
+        return redirect()->route('pizza_raw_materials.index')->with('success', 'Asignación creada exitosamente.');
     }
 
     /**
-     * Display the specified resource.
+     * Mostrar detalles de un recurso específico.
      */
     public function show(PizzaRawMaterial $pizzaRawMaterial)
     {
-        //
+        return view('pizza_raw_materials.show', compact('pizzaRawMaterial'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Mostrar formulario para editar un recurso existente.
      */
     public function edit(PizzaRawMaterial $pizzaRawMaterial)
     {
-        //
+        $pizzas = Pizza::all();
+        $rawMaterials = RawMaterial::all();
+        return view('pizza_raw_materials.edit', compact('pizzaRawMaterial', 'pizzas', 'rawMaterials'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualizar un recurso en la base de datos.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, PizzaRawMaterial $pizzaRawMaterial)
     {
-        // Actualizar cantidad de materia prima de una pizza
-        $pizzaRawMaterial = PizzaRawMaterial::findOrFail($id);
-
         $validated = $request->validate([
+            'pizza_id' => 'required|exists:pizzas,id',
+            'raw_material_id' => 'required|exists:raw_materials,id',
             'quantity' => 'required|numeric',
         ]);
 
         $pizzaRawMaterial->update($validated);
-        return response()->json($pizzaRawMaterial);
+
+        return redirect()->route('pizza_raw_materials.index')->with('success', 'Asignación actualizada exitosamente.');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Eliminar un recurso específico.
      */
-    public function destroy($id)
+    public function destroy(PizzaRawMaterial $pizzaRawMaterial)
     {
-        // Eliminar una materia prima de una pizza
-        $pizzaRawMaterial = PizzaRawMaterial::findOrFail($id);
         $pizzaRawMaterial->delete();
-        return response()->json(['message' => 'Pizza raw material deleted successfully']);
+        return redirect()->route('pizza_raw_materials.index')->with('success', 'Asignación eliminada exitosamente.');
     }
 }

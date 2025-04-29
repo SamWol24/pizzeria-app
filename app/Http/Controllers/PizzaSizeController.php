@@ -9,14 +9,12 @@ class PizzaSizeController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function index()
     {
         // Obtener todos los tamaños de pizza
         $sizes = PizzaSize::all();
-        return response()->json($sizes);
+        return view('pizza_sizes.index', compact('sizes'));
     }
 
     /**
@@ -24,39 +22,35 @@ class PizzaSizeController extends Controller
      */
     public function create()
     {
-        //
+        // Mostrar el formulario para crear un nuevo tamaño de pizza
+        return view('pizza_sizes.create');
     }
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        // Validar los datos del tamaño de pizza
+        // Validar los datos
         $validated = $request->validate([
             'size' => 'required|string|max:50',
             'price_modifier' => 'required|numeric',
         ]);
 
-        // Crear un nuevo tamaño de pizza
-        $size = PizzaSize::create($validated);
-        return response()->json($size, 201);
+        // Crear nuevo tamaño
+        PizzaSize::create($validated);
+
+        // Redirigir a la lista con mensaje
+        return redirect()->route('pizza_sizes.index')->with('success', 'Tamaño de pizza creado exitosamente.');
     }
 
     /**
      * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        // Mostrar un tamaño específico de pizza
-        $size = PizzaSize::findOrFail($id);
-        return response()->json($size);
+        $pizzaSize = PizzaSize::findOrFail($id);
+        return view('pizza_sizes.show', compact('pizzaSize'));
     }
 
     /**
@@ -64,43 +58,37 @@ class PizzaSizeController extends Controller
      */
     public function edit(PizzaSize $pizzaSize)
     {
-        //
+        return view('pizza_sizes.edit', compact('pizzaSize'));
     }
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-        // Buscar y actualizar un tamaño de pizza existente
-        $size = PizzaSize::findOrFail($id);
+        $pizzaSize = PizzaSize::findOrFail($id);
 
-        // Validar los datos de la actualización
+        // Validar
         $validated = $request->validate([
             'size' => 'required|string|max:50',
             'price_modifier' => 'required|numeric',
         ]);
 
-        // Actualizar los datos del tamaño de pizza
-        $size->update($validated);
-        return response()->json($size);
+        // Actualizar
+        $pizzaSize->update($validated);
+
+        return redirect()->route('pizza_sizes.index')->with('success', 'Tamaño de pizza actualizado correctamente.');
     }
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        // Eliminar un tamaño de pizza
-        $size = PizzaSize::findOrFail($id);
-        $size->delete();
-        return response()->json(['message' => 'Pizza size deleted successfully']);
+        $pizzaSize = PizzaSize::findOrFail($id);
+        $pizzaSize->delete();
+
+        return redirect()->route('pizza_sizes.index')->with('success', 'Tamaño de pizza eliminado correctamente.');
     }
 }
+
