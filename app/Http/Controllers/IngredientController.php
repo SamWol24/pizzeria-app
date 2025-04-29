@@ -7,82 +7,52 @@ use Illuminate\Http\Request;
 
 class IngredientController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-         // Obtener todos los ingredientes
-         $ingredients = Ingredient::all();
-         return response()->json($ingredients);
+        $ingredients = Ingredient::all();
+        return view('ingredients.index', compact('ingredients'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('ingredients.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-         // Crear un nuevo ingrediente
-         $validated = $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric',
         ]);
 
-        $ingredient = Ingredient::create($validated);
-        return response()->json($ingredient, 201);
+        Ingredient::create($validated);
+        return redirect()->route('ingredients.index')->with('success', 'Ingrediente creado correctamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($id)
+    public function show(Ingredient $ingredient)
     {
-        // Obtener un ingrediente específico
-        $ingredient = Ingredient::findOrFail($id);
-        return response()->json($ingredient);
+        return view('ingredients.show', compact('ingredient'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Ingredient $ingredient)
     {
-        //
+        return view('ingredients.edit', compact('ingredient'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
+    public function update(Request $request, Ingredient $ingredient)
     {
-        // Actualizar un ingrediente
-        $ingredient = Ingredient::findOrFail($id);
-
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric',
         ]);
 
         $ingredient->update($validated);
-        return response()->json($ingredient);
+        return redirect()->route('ingredients.index')->with('success', 'Ingrediente actualizado correctamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
+    public function destroy(Ingredient $ingredient)
     {
-        // Eliminar un ingrediente
-        $ingredient = Ingredient::findOrFail($id);
         $ingredient->delete();
-        return response()->json(['message' => 'Ingredient deleted successfully']);
+        return redirect()->route('ingredients.index')->with('success', 'Ingrediente eliminado correctamente.');
     }
 }

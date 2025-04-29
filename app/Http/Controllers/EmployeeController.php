@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Models\Branch;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
@@ -12,7 +14,9 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        //
+        // Opcionalmente podrías listar todos los empleados aquí
+        $employees = Employee::with(['branch', 'user'])->get();
+        return view('employees.index', compact('employees'));
     }
 
     /**
@@ -20,7 +24,9 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        //
+        $branches = Branch::all();
+        $users = User::all();
+        return view('employees.create', compact('branches', 'users'));
     }
 
     /**
@@ -39,7 +45,7 @@ class EmployeeController extends Controller
         ]);
 
         $employee = Employee::create($validated);
-        return response()->json($employee, 201);
+        return redirect()->route('employees.index')->with('success', 'Empleado creado correctamente.');
     }
 
     /**
@@ -47,8 +53,7 @@ class EmployeeController extends Controller
      */
     public function show(Employee $employee)
     {
-        // Mostrar un empleado específico
-        return response()->json($employee->load(['branch', 'user']));
+        return view('employees.show', compact('employee'));
     }
 
     /**
@@ -56,7 +61,9 @@ class EmployeeController extends Controller
      */
     public function edit(Employee $employee)
     {
-        //
+        $branches = Branch::all();
+        $users = User::all();
+        return view('employees.edit', compact('employee', 'branches', 'users'));
     }
 
     /**
@@ -64,7 +71,6 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, Employee $employee)
     {
-        // Actualizar un empleado
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:employees,email,' . $employee->id,
@@ -75,7 +81,7 @@ class EmployeeController extends Controller
         ]);
 
         $employee->update($validated);
-        return response()->json($employee);
+        return redirect()->route('employees.index')->with('success', 'Empleado actualizado correctamente.');
     }
 
     /**
@@ -83,8 +89,8 @@ class EmployeeController extends Controller
      */
     public function destroy(Employee $employee)
     {
-         // Eliminar un empleado
-         $employee->delete();
-         return response()->json(['message' => 'Employee deleted successfully']);
+        $employee->delete();
+        return redirect()->route('employees.index')->with('success', 'Empleado eliminado correctamente.');
     }
 }
+

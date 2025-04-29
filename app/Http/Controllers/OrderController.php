@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Client;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -12,9 +14,8 @@ class OrderController extends Controller
      */
     public function index()
     {
-        // Obtener todos los pedidos
-        $orders = Order::with(['user', 'orderPizzas.pizzaSize'])->get();
-        return response()->json($orders);
+        $orders = Order::with(['client', 'employee'])->get();
+        return view('orders.index', compact('orders'));
     }
 
     /**
@@ -22,7 +23,9 @@ class OrderController extends Controller
      */
     public function create()
     {
-        //
+        $clients = Client::all();
+        $employees = Employee::all();
+        return view('orders.create', compact('clients', 'employees'));
     }
 
     /**
@@ -30,8 +33,7 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-         // Crear un nuevo pedido
-         $validated = $request->validate([
+        $validated = $request->validate([
             'client_id' => 'required|exists:clients,id',
             'employee_id' => 'nullable|exists:employees,id',
             'total' => 'required|numeric',
@@ -39,7 +41,7 @@ class OrderController extends Controller
         ]);
 
         $order = Order::create($validated);
-        return response()->json($order, 201);
+        return redirect()->route('orders.index')->with('success', 'Pedido creado exitosamente');
     }
 
     /**
@@ -47,8 +49,8 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        // Mostrar un pedido específico, incluyendo relaciones de cliente y empleado
-        return response()->json($order->load(['client', 'employee']));
+        $order->load(['client', 'employee', 'pizzas', 'extraIngredients']);
+        return view('orders.show', compact('order'));
     }
 
     /**
@@ -56,8 +58,9 @@ class OrderController extends Controller
      */
     public function edit(Order $order)
     {
-        // Mostrar un pedido específico para editar
-        return response()->json($order->load(['client', 'employee']));
+        $clients = Client::all();
+        $employees = Employee::all();
+        return view('orders.edit', compact('order', 'clients', 'employees'));
     }
 
     /**
@@ -65,14 +68,15 @@ class OrderController extends Controller
      */
     public function update(Request $request, Order $order)
     {
-        // Actualizar el pedido con nuevos datos
         $validated = $request->validate([
+            'client_id' => 'required|exists:clients,id',
+            'employee_id' => 'nullable|exists:employees,id',
             'total' => 'required|numeric',
             'status' => 'required|string|max:255',
         ]);
 
         $order->update($validated);
-        return response()->json($order);
+        return redirect()->route('orders.index')->with('success', 'Pedido actualizado correctamente');
     }
 
     /**
@@ -80,8 +84,7 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
-        // Eliminar un pedido
         $order->delete();
-        return response()->json(['message' => 'Order deleted successfully']);
+        return redirect()->route('orders.index')->with('success', 'Pedido eliminado correctamente');
     }
 }
