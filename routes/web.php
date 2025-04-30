@@ -1,79 +1,54 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ClientController;
-use App\Http\Controllers\RawMaterialController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\OrderPizzaController;
-use App\Http\Controllers\PizzaController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\BranchController;
-use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\IngredientController;
-use App\Http\Controllers\PizzaSizeController;
-use App\Http\Controllers\OrderExtraIngredientController;
-use App\Http\Controllers\ExtraIngredientController;
-use App\Http\Controllers\PurchaseController;
-use App\Http\Controllers\PizzaRawMaterialController;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ProductController;
 
-// Ruta de la página principal
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Rutas de Clientes
-Route::get('/clients', [ClientController::class, 'index']);
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-// Rutas de Materias Primas (Raw Materials)
-Route::resource('raw-materials', RawMaterialController::class);
-
-// Rutas de Usuarios
-// Registrar nuevo usuario
-Route::post('/register', [UserController::class, 'register']);
-// Iniciar sesión
-Route::post('/login', [UserController::class, 'login']);
-
-// Rutas de usuarios: listar, mostrar, actualizar y eliminar
-Route::get('users', [UserController::class, 'index']); // Mostrar todos los usuarios
-Route::get('users/{id}', [UserController::class, 'show']); // Mostrar un usuario específico
-Route::put('users/{id}', [UserController::class, 'update']); // Actualizar un usuario
-Route::delete('users/{id}', [UserController::class, 'destroy']); // Eliminar un usuario
-
-// Rutas de Pizzas
-Route::resource('pizzas', PizzaController::class);
-
-// Rutas de Pedidos (Orders)
-Route::resource('orders', OrderController::class);
-
-// Rutas para sucursales (Branches)
-Route::resource('branches', BranchController::class);
-
-// Rutas para proveedores (Suppliers)
-Route::resource('suppliers', SupplierController::class);
-
-Route::resource('pizza_ingredients', App\Http\Controllers\PizzaIngredientController::class);
-
-// Rutas para ingredientes (Ingredients)
-Route::resource('ingredients', IngredientController::class);
-
-// Rutas para tamaños de pizza (Pizza Sizes)
-Route::resource('pizza-sizes', PizzaSizeController::class);
-
-// Rutas para Extras en un Pedido (OrderExtraIngredient)
-Route::resource('order_extra_ingredient', OrderExtraIngredientController::class);
-
-// Rutas para Ingredientes Extras (ExtraIngredient)
-Route::resource('extra-ingredients', ExtraIngredientController::class);
-
-Route::resource('purchases', PurchaseController::class);
-
-Route::resource('pizza_raw_materials', PizzaRawMaterialController::class);
-
-// Rutas para manejar las pizzas en pedidos (OrderPizzas)
-Route::prefix('order-pizzas')->group(function () {
-    Route::get('/', [OrderPizzaController::class, 'index']);
-    Route::get('/{orderPizza}', [OrderPizzaController::class, 'show']);
-    Route::post('/', [OrderPizzaController::class, 'store']);
-    Route::put('/{orderPizza}', [OrderPizzaController::class, 'update']);
-    Route::delete('/{orderPizza}', [OrderPizzaController::class, 'destroy']);
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+//  Rutas por rol
+Route::middleware(['auth', 'role:administrador'])->get('/admin', function () {
+    return 'Bienvenido, Administrador';
+});
+
+Route::middleware(['auth', 'role:cajero'])->get('/cajero', function () {
+    return 'Bienvenido, Cajero';
+});
+
+Route::middleware(['auth', 'role:cocinero'])->get('/cocinero', function () {
+    return 'Bienvenido, Cocinero';
+});
+
+Route::middleware(['auth', 'role:mensajero'])->get('/mensajero', function () {
+    return 'Bienvenido, Mensajero';
+});
+
+Route::middleware(['auth', 'role:cliente'])->get('/cliente', function () {
+    return 'Bienvenido, Cliente';
+});
+
+// Ruta de prueba para login rápido (elimina en producción)
+Route::get('/login-test', function () {
+    $user = \App\Models\User::first();
+    Auth::login($user);
+    return redirect('/dashboard');
+});
+// Rutas de productos (accesibles solo si estás autenticado)
+Route::middleware(['auth'])->group(function () {
+    Route::resource('products', ProductController::class);
+});
+
+require __DIR__.'/auth.php';
