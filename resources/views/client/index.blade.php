@@ -1,61 +1,46 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+@extends('layouts.app')
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+@section('content')
+<div class="container">
+    <h1>Clientes</h1>
 
-    <title>Lista de Clientes</title>
-  </head>
+    <a href="{{ route('clients.create') }}" class="btn btn-primary mb-3">Nuevo Cliente</a>
 
-  <body>
-  <div class="container mt-4">
-    <h1>Lista de Clientes</h1>
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
-    @if($clients->isEmpty())
-      <div class="alert alert-info">
-        No hay clientes registrados.
-      </div>
-    @else
-      <table class="table table-striped">
+    <table class="table table-bordered">
         <thead>
-          <tr>
-            <th>ID</th>
-            <th>Dirección</th>
-            <th>Teléfono</th>
-            <th>ID Usuario</th>
-          </tr>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Dirección</th>
+                <th>Teléfono</th>
+                <th>Acciones</th>
+            </tr>
         </thead>
         <tbody>
-          @foreach($clients as $client)
-            <tr>
-              <td>{{ $client->id }}</td>
-              <td>{{ $client->address }}</td>
-              <td>{{ $client->phone }}</td>
-              <td>{{ $client->user->name ?? 'No Asignado' }}</td>
-            </tr>
-          @endforeach
+            @foreach($clients as $client)
+                <tr>
+                    <td>{{ $client->id }}</td>
+                    <td>{{ $client->user->name ?? 'Sin usuario' }}</td>
+                    <td>{{ $client->address }}</td>
+                    <td>{{ $client->phone }}</td>
+                    <td>
+                        <a href="{{ route('clients.show', $client->id) }}" class="btn btn-info btn-sm">Ver</a>
+                        <a href="{{ route('clients.edit', $client->id) }}" class="btn btn-warning btn-sm">Editar</a>
+                        <form action="{{ route('clients.destroy', $client->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar cliente?')">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
         </tbody>
-      </table>
-      
-      <!-- Paginación -->
-      <div class="d-flex justify-content-center">
-        {{ $clients->links() }}
-      </div>
-    @endif
-  </div>
-    <!-- Optional JavaScript; choose one of the two! -->
+    </table>
 
-    <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-
-    <!-- Option 2: Separate Popper and Bootstrap JS -->
-    <!--
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
-    -->
-  </body>
-</html>
+    {{ $clients->links() }}
+</div>
+@endsection
